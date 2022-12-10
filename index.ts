@@ -1,16 +1,16 @@
 type NoteDef = {
-    '0': 'C';
-    '1': 'C#';
-    '2': 'D';
-    '3': 'D#';
-    '4': 'E';
-    '5': 'F';
-    '6': 'F#';
-    '7': 'G';
-    '8': 'G#';
-    '9': 'A';
-    '10': 'A#';
-    '11': 'B';
+    0 : 'C';
+    1: 'C#';
+    2: 'D';
+    3: 'D#';
+    4: 'E';
+    5: 'F';
+    6: 'F#';
+    7: 'G';
+    8: 'G#';
+    9: 'A';
+    10: 'A#';
+    11: 'B';
 }
 
 // ユーティリティ
@@ -18,7 +18,7 @@ type ValueOf<T> = T[keyof T]
 
 type Note = ValueOf<NoteDef> 
 
-type Num2NoteId<T extends number> = `${T}` extends keyof NoteDef ? `${T}` : never
+type Num2NoteId<T extends number> = T extends keyof NoteDef ? T : never
 
 type Num2Array<T extends number, Result extends any[] = []> = Result['length'] extends T
     ? Result
@@ -48,19 +48,23 @@ type Mod<A extends number, B extends number> = Num2Array<A> extends [...Num2Arra
 
 type Flip<T extends Record<string, string>> =  { [P in keyof T as T[P]]: P }
 
-type String2Num<T extends string> = T extends `${infer K extends number}` ? K : never;
 
 type Note2NoteId = Flip<NoteDef>
 
-type sss = String2Num<Note2NoteId["C"]>
+
+
+
 
 type NthNote<T extends Note, N extends number> = NoteDef[Num2NoteId<
-    Sum<String2Num<Note2NoteId[T]>, N> extends number ? Mod<Sum<String2Num<Note2NoteId[T]>, N>, 12> : never
+    Sum<Note2NoteId[T], N> extends number ? Mod<Sum<Note2NoteId[T], N>, 12> : never
 >];
+
+
 
 type MajorChord<T extends Note> = [NthNote<T, 0>, NthNote<T, 4>, NthNote<T, 7>]
 type MinorChord<T extends Note> = [NthNote<T, 0>, NthNote<T, 3>, NthNote<T, 7>]
 type SeventhChord<T extends Note> = [NthNote<T, 0>, NthNote<T, 4>, NthNote<T, 7>, NthNote<T, 11>]
+
 
 type Asm = MinorChord<"A#">
 type F = MajorChord<"F">
@@ -181,14 +185,14 @@ type ChordParser<T extends string> = T extends Note
     ? A extends Note
         ? MinorChord<A>
         : []
-    : T extends `${infer A}m7`
-    ? A extends Note
-        ? MinorSeventhChord<A>
-        : []
-    : T extends `${infer A}M7`
-    ? A extends Note
-        ? MajorSeventhChord<A>
-        : []
+    // : T extends `${infer A}m7`
+    // ? A extends Note
+    //     ? MinorSeventhChord<A>
+    //     : []
+    // : T extends `${infer A}M7`
+    // ? A extends Note
+    //     ? MajorSeventhChord<A>
+    //     : []
     : T extends `${infer A}7`
     ? A extends Note
         ? SeventhChord<A>
